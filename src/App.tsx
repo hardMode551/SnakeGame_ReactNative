@@ -29,7 +29,7 @@ const App: React.FC = () => {
     fieldHeight,
   } = useGameLogic(showMainMenu, showTutorial);
 
-  const handleGesture = useGestureHandler(setDirection);
+  const handleGesture = useGestureHandler(direction, setDirection);
 
   const handlePauseResume = () => {
     setPaused(!paused);
@@ -82,8 +82,8 @@ const App: React.FC = () => {
           {gameOver && (
             <View style={styles.overlay}>
               <View style={styles.overlayContent}>
-                {/* <Text style={styles.overlayText}>Game Over</Text>
-                <Text style={styles.overlayText}>Your score: {score}</Text> */}
+                <Text style={styles.overlayText}>Game Over</Text>
+                <Text style={styles.overlayText}>Your score: {score}</Text>
                 <Button title="Restart" onPress={resetGame} />
               </View>
             </View>
@@ -96,7 +96,6 @@ const App: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
     flex: 1,
     backgroundColor: '#222',
   },

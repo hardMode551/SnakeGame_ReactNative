@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 
 interface MainMenuProps {
   onStart: () => void;
@@ -9,10 +9,12 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ onStart, onShowTutorial }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Snake Game</Text>
+      <Text style={styles.header}>Snake game</Text>
       <Image style={styles.image} source={require('../assets/Snake.png')} />
-      <Button title="Start Game" onPress={onStart} />
-      <Button title="Tutorial" onPress={onShowTutorial} />
+      <View style={styles.btnList}>
+        <Button title={'Start Game'} onPress={onStart} />
+        <Button title={'Tutorial'} onPress={onShowTutorial} />
+      </View>
     </View>
   );
 };
@@ -22,8 +24,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
     backgroundColor: 'lightgray',
+    padding: 20,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     fontSize: 24,
@@ -37,7 +44,13 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     resizeMode: 'contain',
+    marginBottom: 20,
   },
+  btnList: {
+    gap: 20,
+  }
 });
+
+
 
 export default MainMenu;
