@@ -19,7 +19,7 @@ const GameControls: React.FC<GameControlsProps> = ({ paused, onPauseResume, onEx
 const styles = StyleSheet.create({
   pauseButtonContainer: {
     position: 'absolute',
-    top: 80,
+    top: 10,
     left: 10,
     flexDirection: 'row',
     gap: 10,

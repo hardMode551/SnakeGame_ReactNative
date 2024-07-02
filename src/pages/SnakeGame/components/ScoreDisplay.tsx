@@ -16,7 +16,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({ score }) => {
 const styles = StyleSheet.create({
   scoreContainer: {
     position: 'absolute',
-    top: 80,
+    top: 10,
     right: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 5,

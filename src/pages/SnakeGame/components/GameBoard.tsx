@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { CELL_SIZE } from 'utils/constants';
+import { CELL_SIZE } from 'pages/SnakeGame/utils/constants';
 
 interface GameBoardProps {
   fieldWidth: number;
@@ -15,14 +15,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ fieldWidth, fieldHeight, children
   // Динамически вычисляем стили на основе пропсов
   const styles = StyleSheet.create({
     board: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+
       backgroundColor: 'grey',
-      borderRadius: 10,
       overflow: 'hidden',
-      position: 'absolute',
-      top: 150,
-      left: (Dimensions.get('window').width - boardWidth) / 2,
+      
       width: boardWidth,
       height: boardHeight,
+
+      marginTop: 20,
     },
   });
 

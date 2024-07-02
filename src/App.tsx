@@ -1,119 +1,36 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Alert, Button, Text } from 'react-native';
-import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
-import GameBoard from './components/GameBoard';
-import Snake from './components/Snake';
-import Food from './components/Food';
-import MainMenu from './components/MainMenu';
-import Tutorial from './components/Tutorial';
-import GameControls from './components/GameControls';
-import ScoreDisplay from './components/ScoreDisplay';
-import { useGameLogic } from './hooks/useGameLogic';
-import { useGestureHandler } from './hooks/useGestureHandler';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import SnakeGame from "pages/SnakeGame/SnakeGame";
+import MainMenuScreen from "pages/MainMenuScreen";
+import ThreeInARow from "pages/ThreeInARowGame/ThreeInARow";
+import { StyleSheet, View } from "react-native";
+import { Provider } from "react-redux";
+import store from "redux/store";
+
+const Stack = createStackNavigator();
 
 const App: React.FC = () => {
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
-  const [showMainMenu, setShowMainMenu] = useState<boolean>(true);
-
-  const {
-    snake,
-    food,
-    direction,
-    setDirection,
-    score,
-    gameOver,
-    resetGame,
-    paused,
-    setPaused,
-    fieldWidth,
-    fieldHeight,
-  } = useGameLogic(showMainMenu, showTutorial);
-
-  const handleGesture = useGestureHandler(direction, setDirection);
-
-  const handlePauseResume = () => {
-    setPaused(!paused);
-  };
-
-  const handleExitGame = () => {
-    setPaused(true);
-    setShowMainMenu(true);
-  };
-
-  const handleStartGame = () => {
-    resetGame();
-    setShowMainMenu(false);
-    setPaused(false);
-  };
-
-  const handleShowTutorial = () => {
-    setShowTutorial(true);
-    setShowMainMenu(false);
-  };
-
-  const handleBackToMenu = () => {
-    setShowTutorial(false);
-    setShowMainMenu(true);
-  };
-
-  if (showTutorial) {
-    return <Tutorial onDone={() => setShowTutorial(false)} onBackToMenu={handleBackToMenu} />;
-  }
-
-  if (showMainMenu) {
-    return (
-      <MainMenu
-        onStart={handleStartGame}
-        onShowTutorial={handleShowTutorial}
-      />
-    );
-  }
-
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <PanGestureHandler onGestureEvent={handleGesture}>
-        <View style={styles.container}>
-          <GameBoard fieldWidth={fieldWidth} fieldHeight={fieldHeight}>
-            <Snake segments={snake} />
-            <Food position={food} />
-          </GameBoard>
-          <GameControls paused={paused} onPauseResume={handlePauseResume} onExitGame={handleExitGame} />
-          <ScoreDisplay score={score} />
-          {gameOver && (
-            <View style={styles.overlay}>
-              <View style={styles.overlayContent}>
-                <Text style={styles.overlayText}>Game Over</Text>
-                <Text style={styles.overlayText}>Your score: {score}</Text>
-                <Button title="Restart" onPress={resetGame} />
-              </View>
-            </View>
-          )}
-        </View>
-      </PanGestureHandler>
-    </GestureHandlerRootView>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="MainMenu">
+          <Stack.Screen name="MainMenu" component={MainMenuScreen} />
+          <Stack.Screen name="SnakeGame" component={SnakeGame} />
+          <Stack.Screen name="ThreeInARow" component={ThreeInARow} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#222',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  overlayContent: {
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "lightgray",
     padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  overlayText: {
-    fontSize: 20,
-    marginBottom: 10,
   },
 });
 

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Dimensions, Alert } from 'react-native';
+import { Dimensions, Alert, View } from 'react-native';
 import { CELL_SIZE, Direction } from '../utils/constants';
+import { useSelector } from 'react-redux';
+
+import { RootState } from '../../../redux/store';
 
 const calculateFieldDimensions = () => {
   const { width, height } = Dimensions.get('window');
@@ -22,6 +25,14 @@ export const useGameLogic = (showMainMenu: boolean, showTutorial: boolean) => {
   const [score, setScore] = useState<number>(0);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
+
+  const { difficulty } = useSelector((state: RootState) => state.difficulty);
+
+  const speed = {
+    easy: 150,
+    medium: 100,
+    hard: 50,
+  }[difficulty];
 
   const generateFoodPosition = () => {
     const newFood = {
@@ -47,13 +58,11 @@ export const useGameLogic = (showMainMenu: boolean, showTutorial: boolean) => {
 
       if (newHead.x < 0 || newHead.x >= fieldWidth || newHead.y < 0 || newHead.y >= fieldHeight) {
         setGameOver(true);
-        Alert.alert('Game Over', `Your score: ${score}`, [{ text: 'Restart', onPress: resetGame }]);
         return;
       }
 
       if (snake.slice(1).some(segment => segment.x === newHead.x && segment.y === newHead.y)) {
         setGameOver(true);
-        Alert.alert('Game Over', `Your score: ${score}`, [{ text: 'Restart', onPress: resetGame }]);
         return;
       }
 
@@ -67,7 +76,7 @@ export const useGameLogic = (showMainMenu: boolean, showTutorial: boolean) => {
       }
     };
 
-    const movementInterval = setInterval(handleMovement, 100);
+    const movementInterval = setInterval(handleMovement, speed);
 
     return () => {
       clearInterval(movementInterval);
