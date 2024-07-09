@@ -1,21 +1,34 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Board from './components/BoardComponent';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ScoreBoard from './components/ScoreBoard';
+import GameBoard from './components/GameBoard';
 
-const ThreeInARow = () => {
+const ThreeInARow: React.FC = () => {
+  const [score, setScore] = React.useState(0);
+
+  const handleScoreUpdate = (newScore: number) => {
+    setScore((prevScore) => prevScore + newScore);
+  };
+
   return (
-    <View style={styles.container}>
-      <Board />
-    </View>
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <ScoreBoard score={score} />
+        <GameBoard onScoreUpdate={handleScoreUpdate} />
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  safeArea: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'lightgray',
   },
 });
 
