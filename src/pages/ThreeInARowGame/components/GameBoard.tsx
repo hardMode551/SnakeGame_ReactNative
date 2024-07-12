@@ -1,24 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text, Button } from "react-native";
+
+import { TileDataOrNull, Position } from "../utils/types";
+import { ImageSetKey } from "../utils/imageSets";
+
 import Tile from "./Tile";
-import { TileData, TileDataOrNull, Position } from "../utils/types";
-import {
-  createInitialBoard,
-  checkMatches,
-  swapTiles,
-  removeTiles,
-  fillEmptyCells,
-  calculateScore,
-  BOARD_SIZE,
-} from "../utils/GameLogic";
+import { RootState } from "../store/store";
+import { BOARD_SIZE, createGameLogic } from "../utils/GameLogic";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setCurrentImageType } from "../store/imageSetsSlice";
+import ImageSelectionModal from "./ImageSelectionModal";
+
 
 interface GameBoardProps {
   onScoreUpdate: (score: number) => void;
+  // ОСТАВИТЬ ПОКА ТАК, А ПОТОМ ИЗМЕНИТЬ НА МАСШАБИРУЕМОСТЬ
+  imageType: ImageSetKey;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({ onScoreUpdate }) => {
-  const [board, setBoard] = useState<TileDataOrNull[][]>(createInitialBoard());
+  const dispatch = useAppDispatch();
+  const { currentImageType } = useAppSelector((state: RootState) => state.imageSets);
+  
+  const [gameLogic, setGameLogic] = useState(() => createGameLogic(currentImageType));
+  const [board, setBoard] = useState<TileDataOrNull[][]>(() => gameLogic.createInitialBoard());
   const [selectedTile, setSelectedTile] = useState<Position | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  useEffect(() => {
+    const newGameLogic = createGameLogic(currentImageType);
+    setGameLogic(newGameLogic);
+    setBoard(prevBoard => newGameLogic.updateBoardTypes(prevBoard));
+  }, [currentImageType]);
+
+  const handleImageTypeSelect = React.useCallback((imageType: ImageSetKey) => {
+    dispatch(setCurrentImageType(imageType));
+    setIsModalVisible(false);
+  }, [dispatch]);
 
   const processMatches = React.useCallback(() => {
     let newBoard = board;
@@ -27,12 +45,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ onScoreUpdate }) => {
 
     do {
       hasMatches = false;
-      const matches = checkMatches(newBoard);
+      const matches = gameLogic.checkMatches(newBoard);
       if (matches.length > 0) {
         hasMatches = true;
-        totalScore += calculateScore(matches);
-        newBoard = removeTiles(newBoard, matches);
-        newBoard = fillEmptyCells(newBoard);
+        totalScore += gameLogic.calculateScore(matches);
+        newBoard = gameLogic.removeTiles(newBoard, matches);
+        newBoard = gameLogic.fillEmptyCells(newBoard);
       }
     } while (hasMatches);
 
@@ -59,7 +77,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onScoreUpdate }) => {
       }
 
       if (newRow !== selectedTile.row || newCol !== selectedTile.col) {
-        const newBoard = swapTiles(board, selectedTile, { row: newRow, col: newCol });
+        const newBoard = gameLogic.swapTiles(board, selectedTile, { row: newRow, col: newCol });
         setBoard(newBoard);
       }
       setSelectedTile(null);
@@ -90,6 +108,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onScoreUpdate }) => {
 
   return (
     <View style={styles.board}>
+      <Button title="Change Image Set" onPress={() => setIsModalVisible(true)} />
       {board.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
           {row.map(
@@ -101,7 +120,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ onScoreUpdate }) => {
                   onSwipe={(direction) =>
                     handleSwipe(rowIndex, colIndex, direction)
                   }
-                  onPress={() => handleTilePress(rowIndex, colIndex)}
                   isSelected={
                     selectedTile?.row === rowIndex &&
                     selectedTile?.col === colIndex
@@ -111,6 +129,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ onScoreUpdate }) => {
           )}
         </View>
       ))}
+      <ImageSelectionModal
+        isVisible={isModalVisible}
+        onSelect={handleImageTypeSelect}
+        onClose={() => setIsModalVisible(false)}
+      />
     </View>
   );
 };

@@ -1,29 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, ViewStyle, Image } from 'react-native';
+import { Animated, StyleSheet, ViewStyle, Image, ImageSourcePropType } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import { TileData } from '../utils/types';
-
-// const tileImages = {
-//   coin_1: require('../images/fruit/fruit_1.png'),
-//   coin_2: require('../images/fruit/fruit_2.png'),
-//   coin_3: require('../images/fruit/fruit_3.png'),
-//   coin_4: require('../images/fruit/fruit_4.png'),
-//   coin_5: require('../images/fruit/fruit_5.png'),
-//   coin_6: require('../images/fruit/fruit_6.png'),
-//   coin_7: require('../images/fruit/fruit_7.png'),
-//   coin_8: require('../images/fruit/fruit_8.png')
-// };
-
-const tileImages = {
-  Cat_1: require('../images/cat/Cat_1.png'),
-  Cat_2: require('../images/cat/Cat_2.png'),
-  Cat_3: require('../images/cat/Cat_3.png'),
-  Cat_4: require('../images/cat/Cat_4.png'),
-  Cat_5: require('../images/cat/Cat_5.png'),
-  Cat_6: require('../images/cat/Cat_6.png'),
-  Cat_7: require('../images/cat/Cat_7.png'),
-  Cat_8: require('../images/cat/Cat_8.png')
-};
+import { useAppSelector } from '../store/hooks';
+import { RootState } from '../store/store';
+import { ImageSetKey, imageSets } from '../utils/imageSets';
 
 interface TileProps {
   tile: TileData;
@@ -32,9 +13,14 @@ interface TileProps {
 }
 
 const Tile: React.FC<TileProps> = ({ tile, onSwipe, isSelected }) => {
+  const imageType = useAppSelector((state: RootState) => state.imageSets.currentImageType);
+  const imageSrc = imageSets[imageType as ImageSetKey]?.[tile.type];
+
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+
+  
 
   useEffect(() => {
     Animated.sequence([
@@ -43,7 +29,7 @@ const Tile: React.FC<TileProps> = ({ tile, onSwipe, isSelected }) => {
     ]).start();
   }, [tile]);
 
-  const onGestureEvent = (event: PanGestureHandlerGestureEvent) => {
+  const onGestureEvent = React.useCallback((event: PanGestureHandlerGestureEvent) => {
     const { translationX, translationY } = event.nativeEvent;
     
     if (Math.abs(translationX) > 30 || Math.abs(translationY) > 30) {
@@ -53,7 +39,7 @@ const Tile: React.FC<TileProps> = ({ tile, onSwipe, isSelected }) => {
         onSwipe(translationY > 0 ? 'down' : 'up');
       }
     }
-  };
+  }, [onSwipe]);
 
   const tileStyle: ViewStyle = {
     borderWidth: isSelected ? 2 : 0,
@@ -76,7 +62,7 @@ const Tile: React.FC<TileProps> = ({ tile, onSwipe, isSelected }) => {
         ]}
       >
         <Image
-          source={tileImages[tile.type as keyof typeof tileImages]}
+          source={imageSrc}
           style={styles.image}
         />
       </Animated.View>
@@ -93,6 +79,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   image: {
     width: '100%',
@@ -105,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Tile;
+export default React.memo(Tile);

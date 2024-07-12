@@ -6,7 +6,7 @@ import MainMenuScreen from "pages/MainMenuScreen";
 import ThreeInARow from "pages/ThreeInARowGame/ThreeInARow";
 import { StyleSheet, View } from "react-native";
 import { Provider } from "react-redux";
-import store from "redux/store";
+import { store } from "pages/ThreeInARowGame/store/store";
 
 const Stack = createStackNavigator();
 
